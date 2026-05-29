@@ -600,8 +600,8 @@ async function fetchByLawdCd(lawdCd, regionName) {
       const ckey = `${currentType}_${yyyyMM}_${lawdCd}`;
       if (cache[ckey]) { allDeals = allDeals.concat(cache[ckey]); continue; }
 
-      const apiUrl = `https://apis.data.go.kr/1613000/${svc}?serviceKey=${DATA_KEY}&pageNo=1&numOfRows=200&LAWD_CD=${lawdCd}&DEAL_YMD=${yyyyMM}`;
-          const url = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+      const apiUrl = encodeURIComponent(`https://apis.data.go.kr/1613000/${svc}?serviceKey=${DATA_KEY}&pageNo=1&numOfRows=200&LAWD_CD=${lawdCd}&DEAL_YMD=${yyyyMM}`);
+          const url = `/api/proxy?url=${apiUrl}`;
       const res = await fetch(url);
       const text = await res.text();
       const xml = new DOMParser().parseFromString(text, 'text/xml');
@@ -876,8 +876,8 @@ function doSearch() {
             const ckey = `${currentType}_${yyyyMM}_${lawdCd}`;
             if (cache[ckey]) { allDeals = allDeals.concat(cache[ckey]); continue; }
 
-            const apiUrl = `https://apis.data.go.kr/1613000/${svc}?serviceKey=${DATA_KEY}&pageNo=1&numOfRows=200&LAWD_CD=${lawdCd}&DEAL_YMD=${yyyyMM}`;
-          const url = `/api/proxy?url=${encodeURIComponent(apiUrl)}`;
+            const apiUrl = encodeURIComponent(`https://apis.data.go.kr/1613000/${svc}?serviceKey=${DATA_KEY}&pageNo=1&numOfRows=200&LAWD_CD=${lawdCd}&DEAL_YMD=${yyyyMM}`);
+          const url = `/api/proxy?url=${apiUrl}`;
             const res = await fetch(url);
             const text = await res.text();
             const xml = new DOMParser().parseFromString(text, 'text/xml');

@@ -223,7 +223,7 @@ html,body{width:100%;height:100%;font-family:'Noto Sans KR',sans-serif;overflow:
       <div class="logo-txt"><span>실거래가</span> 지도</div>
     </div>
 
-    <!-- 시도/시군구 드롭다운 -->
+    <!-- 시도/시군구/동 드롭다운 -->
     <div class="region-selects">
       <div class="sel-wrap">
         <select id="sel-sido" onchange="onSidoChange()">
@@ -250,6 +250,11 @@ html,body{width:100%;height:100%;font-family:'Noto Sans KR',sans-serif;overflow:
       <div class="sel-wrap">
         <select id="sel-sigungu" disabled onchange="onSigunguChange()">
           <option value="">시군구 선택</option>
+        </select>
+      </div>
+      <div class="sel-wrap">
+        <select id="sel-dong" disabled onchange="onDongChange()" style="min-width:100px">
+          <option value="">전체 동</option>
         </select>
       </div>
       <button class="btn-region" id="btn-go-region" onclick="goToRegion()" disabled>지도 이동</button>
@@ -488,6 +493,8 @@ let map = null, geocoder = null;
 let currentType = '아파트';
 let jeonseMode = false;
 let jeonseCacheRent = {};
+let currentAllDeals = [];
+let currentRentDeals = [];
 let currentMonths = 1;
 let bubbles = [];
 let sidebarOpen = false;
@@ -566,9 +573,39 @@ function onSidoChange() {
   sg.disabled = false;
 }
 
+function onDongChange() {
+  const dong = document.getElementById('sel-dong').value;
+  if (!currentAllDeals) return;
+  const filtered = dong ? currentAllDeals.filter(d => d.umdNm === dong) : currentAllDeals;
+  clearBubbles();
+  renderBubbles(filtered, currentRentDeals);
+  updateSummary(filtered, currentRentDeals);
+  buildDealList(filtered, currentRentDeals);
+  if (filtered.length > 0) {
+    const regionName = document.getElementById('current-region-badge').textContent;
+    openSidebar(dong ? dong : regionName, filtered, currentRentDeals);
+  }
+}
+
+function populateDongSelect(deals) {
+  const dongs = [...new Set(deals.map(d => d.umdNm).filter(Boolean))].sort();
+  const sel = document.getElementById('sel-dong');
+  sel.innerHTML = '<option value="">전체 동 (' + dongs.length + '개)</option>';
+  dongs.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    sel.appendChild(opt);
+  });
+  sel.disabled = dongs.length === 0;
+}
+
 function onSigunguChange() {
   const code = document.getElementById('sel-sigungu').value;
   document.getElementById('btn-go-region').disabled = !code;
+  // 동 초기화
+  const sel = document.getElementById('sel-dong');
+  sel.innerHTML = '<option value="">전체 동</option>';
+  sel.disabled = true;
 }
 
 function goToRegion() {
@@ -723,6 +760,10 @@ async function fetchByLawdCd(lawdCd, regionName) {
     updateSummary(allDeals, rentDeals);
     buildDealList(allDeals, rentDeals);
     openSidebar(regionName, allDeals, rentDeals);
+    // 전역 저장 및 동 목록 채우기
+    currentAllDeals = allDeals;
+    currentRentDeals = rentDeals;
+    populateDongSelect(allDeals);
 
   } catch(e) {
     setLoading(false);
@@ -744,7 +785,12 @@ async function renderBubbles(deals, rentDeals) {
 
   for (const [dong, list] of Object.entries(byDong)) {
     const avg = Math.round(list.reduce((s,d)=>s+d.price,0)/list.length);
-    const addr = (list[0].regionName||'').split(' ').slice(0,2).join(' ') + ' ' + dong;
+    // 정확한 동 주소 구성
+    const regionName = document.getElementById('current-region-badge').textContent || '';
+    const rParts = regionName.replace(' ·', '').split(' ');
+    const sido = rParts[0] || '';
+    const sigungu = rParts[1] || '';
+    const addr = dong === '기타' ? regionName : `${sido} ${sigungu} ${dong}`;
     // 전세가율 계산
     let jeonseRatio = null;
     if (jeonseMode && rentDeals && rentDeals.length > 0) {

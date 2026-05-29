@@ -963,16 +963,23 @@ document.getElementById('addr-input').addEventListener('keydown', e=>{if(e.key==
 </script>
 
 <script>
-(function() {
-  var s = document.createElement('script');
-  s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places&autoload=false';
-  s.onload = function() {
+function loadKakaoMap() {
+  if (typeof kakao !== 'undefined' && kakao.maps) {
     kakao.maps.load(function() {
       initMap();
     });
-  };
-  document.head.appendChild(s);
-})();
+  } else {
+    setTimeout(loadKakaoMap, 100);
+  }
+}
+
+var kakaoScript = document.createElement('script');
+kakaoScript.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places&autoload=false';
+kakaoScript.onload = loadKakaoMap;
+kakaoScript.onerror = function() {
+  console.error('카카오맵 로드 실패');
+};
+document.body.appendChild(kakaoScript);
 </script>
 </body>
 </html>

@@ -1,26 +1,23 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 'no-store');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const { url } = req.query;
-  if (!url) return res.status(400).json({ error: 'url required' });
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const decodedUrl = decodeURIComponent(url);
-    const response = await fetch(decodedUrl, {
-      headers: {
-        'Accept': 'application/xml, text/xml, */*',
-        'User-Agent': 'Mozilla/5.0',
-      }
+    const target = req.query.url;
+    if (!target) return res.status(400).send('url param required');
+
+    const apiRes = await fetch(target, {
+      method: 'GET',
+      headers: { 'User-Agent': 'Mozilla/5.0' }
     });
-    const text = await response.text();
+
+    const body = await apiRes.text();
     res.setHeader('Content-Type', 'text/xml; charset=utf-8');
-    res.status(200).send(text);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    return res.status(200).send(body);
+  } catch (err) {
+    return res.status(500).send(err.message);
   }
 }

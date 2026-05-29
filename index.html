@@ -962,7 +962,11 @@ function doSearch() {
 document.getElementById('addr-input').addEventListener('keydown', e=>{if(e.key==='Enter')doSearch();});
 </script>
 
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places&autoload=false"></script>
-<script>kakao.maps.load(initMap);</script>
+<script>
+window.kakaoMapCallback = function() {
+  initMap();
+};
+</script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places&onload=kakaoMapCallback"></script>
 </body>
 </html>

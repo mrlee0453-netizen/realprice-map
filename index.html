@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>실거래가 지도 — 아파트·연립·단독주택</title>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -963,23 +964,9 @@ document.getElementById('addr-input').addEventListener('keydown', e=>{if(e.key==
 </script>
 
 <script>
-function loadKakaoMap() {
-  if (typeof kakao !== 'undefined' && kakao.maps) {
-    kakao.maps.load(function() {
-      initMap();
-    });
-  } else {
-    setTimeout(loadKakaoMap, 100);
-  }
-}
-
-var kakaoScript = document.createElement('script');
-kakaoScript.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=95756e912755075d82b76293236e5d62&libraries=services,places&autoload=false';
-kakaoScript.onload = loadKakaoMap;
-kakaoScript.onerror = function() {
-  console.error('카카오맵 로드 실패');
+window.onload = function() {
+  initMap();
 };
-document.body.appendChild(kakaoScript);
 </script>
 </body>
 </html>

@@ -966,9 +966,13 @@ document.getElementById('addr-input').addEventListener('keydown', e=>{if(e.key==
 </script>
 
 <script>
-window.onload = function() {
-  initMap();
-};
+// 카카오맵 완전 로드 후 initMap 실행
+var checkKakao = setInterval(function() {
+  if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.Map) {
+    clearInterval(checkKakao);
+    initMap();
+  }
+}, 50);
 </script>
 </body>
 </html>
